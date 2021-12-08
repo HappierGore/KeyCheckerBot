@@ -1,0 +1,21 @@
+{
+    "name": "keychecker",
+    "version": "1.0.0",
+    "description": "",
+    "main": "main.js",
+    "scripts": {
+        "start": "node KeyChecker.js"
+    },
+    "keywords": [],
+    "author": "",
+    "license": "ISC",
+    "dependencies": {
+        "archiver": "^5.3.0",
+        "better-sqlite3": "^7.4.5",
+        "discord.js": "12.5.1",
+        "lodash": "^4.17.21",
+        "node-gyp": "^8.2.0",
+        "request": "^2.88.2",
+        "save": "^2.4.0"
+    }
+}
