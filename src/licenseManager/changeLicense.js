@@ -4,8 +4,21 @@ const config = require('../../configuration/config.js');
 const timingUtils = require('../utils/timingUtils');
 const saveData = require('../dataBase/saveData');
 const getData = require('../dataBase/getData');
+const checkRole = require('../rolesManager/checkRole');
 
 const final = function (client, message, serverID) {
+    const server = client.guilds.cache.get(serverID);
+    if (!server) {
+        console.log('Server not found');
+        const msg = embedUtils.simpleEmbedMSG(
+            config.COLOR_RED_STRONG,
+            `La ID del servidor que especificaste **(${serverID})** no existe o aún no está registrado.\n Por favor, **copia** la ID del servidor de quien deseas utilizar su licencia, y luego, escribe **!license** acompañado de la ID del servidor.\n**Ejemplo:**\n!license 123456789101112'`
+        );
+
+        message.author.send(msg);
+        return;
+    }
+
     const licensedBy = checkRegistered(client, message);
 
     let isLicensed = false;
@@ -20,18 +33,6 @@ const final = function (client, message, serverID) {
             config.COLOR_RED_STRONG,
             'El servidor que especificaste **no cuenta con una licencia vigente**. Por favor, revisa los servidores que antes te enviamos y selecciona uno de ellos.'
         );
-        message.author.send(msg);
-        return;
-    }
-
-    const server = client.guilds.cache.get(serverID);
-    if (!server) {
-        console.log('Server not found');
-        const msg = embedUtils.simpleEmbedMSG(
-            config.COLOR_RED_STRONG,
-            `La ID del servidor que especificaste **(${serverID})** no existe.\n Por favor, **copia** la ID del servidor de quien deseas utilizar su licencia, y luego, escribe **!license** acompañado de la ID del servidor.\n**Ejemplo:**\n!license 123456789101112'`
-        );
-
         message.author.send(msg);
         return;
     }
@@ -98,6 +99,9 @@ const changeLicense = async function (client, message) {
             ID: server.id,
             'Miembros totales': server.memberCount,
             'Valido hasta': expireTime.toLocaleDateString(),
+            'Roles con acceso:': `${
+                checkRole(client, message)[server.name] ? 'Sí' : 'No'
+            }`,
         };
         const msg = embedUtils
             .simpleEmbedMSG(config.COLOR_BLUE_STRONG, '')

@@ -25,18 +25,35 @@ module.exports = async function (client, message, args) {
 
     if (client.registerMode.get(message.author.id) !== 'force') {
         const licensedBy = checkRegistered(client, message);
-        if (licensedBy.length > 0) {
-            const dbPreference = await getData.userPreferences(
-                message.author.id
-            );
 
+        const dbPreference = (await getData.userPreferences(
+            message.author.id
+        )) || { id: '-1' };
+
+        let isValid = false;
+
+        licensedBy.forEach((sv) => {
+            if (sv.id === dbPreference.ServerID) isValid = true;
+        });
+
+        console.log(isValid);
+
+        if (licensedBy.length > 0) {
             const serverPreferred =
                 client.guilds.cache.get(dbPreference.ServerID) || licensedBy[0];
 
-            const msg = embedUtils.simpleEmbedMSG(
-                config.COLOR_GREEN_STRONG,
-                `Ya cuentas con una licencia **activa** por parte del servidor **${serverPreferred.name}**\n\nSi tienes más servidores con licencias y quieres cambiar la que utilizas, puedes usar el comando **!license** para realizar este cambio.\n\nSi deseas continuar con el proceso de registro, utiliza **!register force**.`
-            );
+            let msg;
+
+            if (isValid)
+                msg = embedUtils.simpleEmbedMSG(
+                    config.COLOR_GREEN_STRONG,
+                    `Ya cuentas con una licencia **activa** por parte del servidor **${serverPreferred.name}**\n\nSi tienes más servidores con licencias y quieres cambiar la que utilizas, puedes usar el comando **!license** para realizar este cambio.\n\nSi deseas continuar con el proceso de registro, utiliza **!register force**.`
+                );
+            else
+                msg = embedUtils.simpleEmbedMSG(
+                    config.COLOR_RED_STRONG,
+                    `La licencia que tenías del servidor **${serverPreferred.name}** ha expirado\n\nSi tienes más servidores con licencias y quieres cambiar la que utilizas, puedes usar el comando **!license** para realizar este cambio.\n\nSi deseas continuar con el proceso de registro, utiliza **!register force**, de este modo podrías re-activar la licencia de tu servidor.`
+                );
             message.author.send(msg);
             return;
         }
