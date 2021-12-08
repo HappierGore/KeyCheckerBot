@@ -6,6 +6,17 @@ const filesUtils = require('../src/Utils/filesUtils.js');
 const { MessageAttachment } = require('discord.js');
 const checkRegistered = require('../src/keyChecker/checkRegistered');
 const getData = require('../src/dataBase/getData');
+const timingUtils = require('../src/Utils/timingUtils');
+
+const resetProgress = function (client, message) {
+    client.registerProgress.delete(message.author.id);
+    client.registerMode.delete(message.author.id);
+    const msg = embedUtils.simpleEmbedMSG(
+        config.COLOR_ORANGE_STRONG,
+        'El tiempo para registrar una llave ha expirado. Puedes volver a utilizar **!register** si así lo deseas.'
+    );
+    message.author.send(msg);
+};
 
 module.exports = async function (client, message, args) {
     if (args[0] === 'force') {
@@ -39,6 +50,7 @@ module.exports = async function (client, message, args) {
 
         if (validateKey(client, message, args[0])) {
             registerKey.register(client, message, args[0]);
+            timingUtils.wait(30).then(() => resetProgress(client, message));
             return;
         }
 

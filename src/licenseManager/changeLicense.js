@@ -6,6 +6,24 @@ const saveData = require('../dataBase/saveData');
 const getData = require('../dataBase/getData');
 
 const final = function (client, message, serverID) {
+    const licensedBy = checkRegistered(client, message);
+
+    let isLicensed = false;
+
+    licensedBy.forEach((server) => {
+        console.log(server.name);
+        if (server.id === serverID) isLicensed = true;
+    });
+
+    if (!isLicensed) {
+        const msg = embedUtils.simpleEmbedMSG(
+            config.COLOR_RED_STRONG,
+            'El servidor que especificaste **no cuenta con una licencia vigente**. Por favor, revisa los servidores que antes te enviamos y selecciona uno de ellos.'
+        );
+        message.author.send(msg);
+        return;
+    }
+
     const server = client.guilds.cache.get(serverID);
     if (!server) {
         console.log('Server not found');
@@ -17,6 +35,7 @@ const final = function (client, message, serverID) {
         message.author.send(msg);
         return;
     }
+
     saveData.userPreferences(message.author.id, serverID);
 
     const keyObj = JSON.parse(getData.keyData(server.id).Data);

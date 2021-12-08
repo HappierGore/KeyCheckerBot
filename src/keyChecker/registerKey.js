@@ -2,6 +2,7 @@ const embedUtils = require('../Utils/embedUtils.js');
 const config = require('../../configuration/config');
 const timingUtils = require('../Utils/timingUtils.js');
 const saveData = require('../dataBase/saveData');
+const getData = require('../dataBase/getData');
 const filesUtils = require('../Utils/filesUtils.js');
 
 const instructions = function (message) {
@@ -77,7 +78,7 @@ const finalAction = function (client, message, serverID) {
     return;
 };
 
-const register = async function (client, message, serverID) {
+const register = async function (client, message) {
     const serversData = [];
 
     let commonServers = 0;
@@ -106,10 +107,33 @@ const register = async function (client, message, serverID) {
 
     for (const [i, server] of serversData.entries()) {
         const icon = server.iconURL();
+
         const toFields = {
             ID: server.id,
             'Miembros totales': server.memberCount,
         };
+
+        const dataObj = getData.keyData(server.id);
+
+        if (dataObj) {
+            const keyObj = JSON.parse(dataObj.Data);
+
+            const now = new Date();
+
+            const expireTime = new Date(keyObj.claimedDate);
+
+            expireTime.setDate(new Date().getDate() + keyObj.lifetime);
+
+            if (expireTime.getTime() > now.getTime())
+                toFields['Tiene una licencia y expira el'] =
+                    expireTime.toLocaleDateString();
+            else
+                toFields['Tiene una licencia expirada'] =
+                    expireTime.toLocaleDateString();
+        } else {
+            toFields['No registrado'] = 'Aún no cuenta con una licencia.';
+        }
+
         const msg = embedUtils
             .simpleEmbedMSG(config.COLOR_BLUE_STRONG, '')
             .setTitle(server.name)
