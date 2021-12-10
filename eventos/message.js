@@ -1,4 +1,5 @@
 const embedUtils = require('../src/Utils/embedUtils.js');
+const config = require('../configuration/config');
 
 module.exports = (client, message) => {
     // const date = new Date(); // Now

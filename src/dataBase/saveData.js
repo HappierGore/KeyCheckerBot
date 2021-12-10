@@ -25,7 +25,18 @@ const userPreferences = (userID, serverID) => {
 
     sqlManager.setPreferencesUser.run(dataToDB);
 };
+
+const serverPreferences = (serverID, rolesAllowed) => {
+    const dataToDB = {
+        ServerID: serverID,
+        rolesAllowed: JSON.stringify(rolesAllowed),
+    };
+
+    sqlManager.setPreferencesServer.run(dataToDB);
+};
+
 module.exports = {
     keyData,
     userPreferences,
+    serverPreferences,
 };

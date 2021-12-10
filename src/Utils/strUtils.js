@@ -99,6 +99,7 @@ const replaceAll = function (string, word, replacement) {
     });
     return result.join('');
 };
+
 module.exports = {
     firstUpperCase,
     numberToEmoji,
